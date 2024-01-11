@@ -1,24 +1,45 @@
 #!/usr/bin/env python3
 
 import legibilidad
+import json
 
-TextoDePrueba = '''
-Tuvo muchas veces competencia con el cura de su lugar (que era hombre docto graduado en Sigüenza), sobre cuál había sido mejor caballero, Palmerín de Inglaterra o Amadís de Gaula; mas maese Nicolás, barbero del mismo pueblo, decía que ninguno llegaba al caballero del Febo, y que si alguno se le podía comparar, era don Galaor, hermano de Amadís de Gaula, porque tenía muy acomodada condición para todo; que no era caballero melindroso, ni tan llorón como su hermano, y que en lo de la valentía no le iba en zaga.
+f = open('getDevocionalesRevisionTutor.json')
+log = open('log.txt','w')
 
-En resolución, él se enfrascó tanto en su lectura, que se le pasaban las noches leyendo de claro en claro, y los días de turbio en turbio, y así, del poco dormir y del mucho leer, se le secó el cerebro, de manera que vino a perder el juicio. Llenósele la fantasía de todo aquello que leía en los libros, así de encantamientos, como de pendencias, batallas, desafíos, heridas, requiebros, amores, tormentas y disparates imposibles, y asentósele de tal modo en la imaginación que era verdad toda aquella máquina de aquellas soñadas invenciones que leía, que para él no había otra historia más cierta en el mundo.
+data = json.load(f)
 
-'''
+for i in data['data']:
+    userId = i['userId']
+    lecturasDiariasData = i['lecturasDiariasData']
+    log.write('*************\n')
+    log.write('userId: '+ userId + '\n')
 
-# Muestra la lecturabilidad
-print(legibilidad.lecturabilidad(TextoDePrueba))
+    for j in lecturasDiariasData:
+        idDevo = j['idDevo']
+        campo1 = j['campo1']
+        campo2 = j['campo2']
+        
+        comprenCampo1 = legibilidad.gutierrez(campo1)
+        comprenCampo2 = legibilidad.gutierrez(campo2)
+        perspiCampo1 = legibilidad.szigriszt_pazos(campo1)
+        perspiCampo2 = legibilidad.szigriszt_pazos(campo2)
+        if campo1 == campo2:
+            log.write('\tidDevo: '+ idDevo+' - Duplicados\n')
+        if comprenCampo1 < 25 or comprenCampo2 < 25 or perspiCampo1 < 30 or perspiCampo2 < 30:
+            log.write('\tidDevo: '+ idDevo+' - Comprencion abajo de 30\n')
+            log.write('\t\tCampo1: '+ campo1+'\n')
+            log.write('\t\t' + str(comprenCampo1) + ' - ' + str(perspiCampo1) + '\n')
+            log.write('\t\tCampo2: '+ campo2+'\n')
+            log.write('\t\t' + str(comprenCampo2) + ' - ' + str(perspiCampo2)+'\n')
 
-# Interpretación de la lecturabilidad
+        # log.write('idDevo: '+ idDevo+'\n')
+        # log.write('campo1: '+ campo1+'\n')
+        # log.write('comprenCampo1: '+ str(comprenCampo1)+'\n')
+        # log.write('perspiCampo1: '+ str(perspiCampo1)+'\n')
 
-print(legibilidad.interpretaL(legibilidad.interpretaL(TextoDePrueba)))
+        # log.write('campo2: '+campo2+'\n')
+        # log.write('comprenCampo2: '+ str(comprenCampo2)+'\n')
+        # log.write('perspiCampo2: '+str(perspiCampo2)+'\n')
 
-# Muestra la perspicuidad
-print(legibilidad.perspicuidad(TextoDePrueba))
-
-# Interpretación de la perspicuidad
-
-print(legibilidad.interpretaP(legibilidad.perspicuidad(TextoDePrueba)))
+log.close()
+f.close()
